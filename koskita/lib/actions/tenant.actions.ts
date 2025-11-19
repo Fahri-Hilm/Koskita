@@ -150,3 +150,27 @@ export async function archiveTenant(id: string) {
     return { success: false, error: 'Gagal mengarsipkan penghuni' }
   }
 }
+
+export async function getTenantDashboardData(penghuniId: string) {
+  try {
+    const tenant = await db.penghuni.findUnique({
+      where: { id: penghuniId },
+      include: {
+        kamar: true,
+        pembayaran: {
+          orderBy: { bulan: 'desc' },
+          take: 12 // Get last year's payments
+        }
+      }
+    })
+
+    if (!tenant) {
+      return { success: false, error: 'Data penghuni tidak ditemukan' }
+    }
+
+    return { success: true, data: tenant }
+  } catch (error) {
+    console.error('Error fetching tenant dashboard:', error)
+    return { success: false, error: 'Gagal mengambil data dashboard' }
+  }
+}
