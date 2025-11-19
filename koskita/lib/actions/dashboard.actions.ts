@@ -1,9 +1,26 @@
 'use server'
 
 import { db } from '@/lib/prisma'
+import { auth } from '@/auth'
 
-export async function getOwnerDashboardStats(ownerId: string) {
+export async function getOwnerDashboardStats() {
   try {
+    const session = await auth()
+    if (!session?.user?.id || session.user.role !== 'OWNER') {
+      return { success: false, error: 'Unauthorized' }
+    }
+    
+    // Get Owner ID from User ID
+    const owner = await db.owner.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!owner) {
+      return { success: false, error: 'Owner profile not found' }
+    }
+
+    const ownerId = owner.id
+
     const now = new Date()
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1)

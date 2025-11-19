@@ -1,14 +1,28 @@
 'use server'
 
 import { db } from '@/lib/prisma'
+import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
 import { KamarInput, kamarSchema } from '@/lib/validations'
 import { StatusKamar } from '@prisma/client'
 
-export async function getRooms(ownerId: string) {
+export async function getRooms() {
   try {
+    const session = await auth()
+    if (!session?.user?.id || session.user.role !== 'OWNER') {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const owner = await db.owner.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!owner) {
+      return { success: false, error: 'Owner profile not found' }
+    }
+
     const rooms = await db.kamar.findMany({
-      where: { ownerId },
+      where: { ownerId: owner.id },
       orderBy: { nomorKamar: 'asc' },
       include: {
         penghuni: {

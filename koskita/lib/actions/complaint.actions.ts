@@ -1,15 +1,29 @@
 'use server'
 
 import { db } from '@/lib/prisma'
+import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
 import { StatusPengaduan } from '@prisma/client'
 
-export async function getComplaints(ownerId: string) {
+export async function getComplaints() {
   try {
+    const session = await auth()
+    if (!session?.user?.id || session.user.role !== 'OWNER') {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const owner = await db.owner.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!owner) {
+      return { success: false, error: 'Owner profile not found' }
+    }
+
     const complaints = await db.pengaduan.findMany({
       where: {
         penghuni: {
-          ownerId
+          ownerId: owner.id
         }
       },
       include: {

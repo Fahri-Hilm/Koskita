@@ -1,15 +1,29 @@
 'use server'
 
 import { db } from '@/lib/prisma'
+import { auth } from '@/auth'
 import { revalidatePath } from 'next/cache'
 import { StatusPembayaran } from '@prisma/client'
 
-export async function getPayments(ownerId: string) {
+export async function getPayments() {
   try {
+    const session = await auth()
+    if (!session?.user?.id || session.user.role !== 'OWNER') {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const owner = await db.owner.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!owner) {
+      return { success: false, error: 'Owner profile not found' }
+    }
+
     const payments = await db.pembayaran.findMany({
       where: {
         penghuni: {
-          ownerId
+          ownerId: owner.id
         }
       },
       include: {

@@ -2,10 +2,7 @@ import { getOwnerDashboardStats } from '@/lib/actions/dashboard.actions'
 import { DashboardClient } from '@/components/owner/dashboard-client'
 
 export default async function OwnerDashboardPage() {
-  // Hardcoded owner ID for Sprint 11
-  const ownerId = 'cm7d9x0un0000356888888888'
-  
-  const result = await getOwnerDashboardStats(ownerId)
+  const result = await getOwnerDashboardStats()
   
   if (!result.success || !result.data) {
     return (

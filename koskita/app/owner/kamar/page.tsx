@@ -1,14 +1,19 @@
 import { getRooms } from '@/lib/actions/room.actions'
 import { KamarClient } from '@/components/owner/kamar-client'
+import { auth } from '@/auth'
+import { db } from '@/lib/prisma'
 
 export default async function KamarPage() {
-  // Hardcoded owner ID for Sprint 10
-  const ownerId = 'cm7d9x0un0000356888888888'
-  const result = await getRooms(ownerId)
+  const session = await auth()
+  const owner = await db.owner.findUnique({
+    where: { userId: session?.user?.id }
+  })
+
+  const result = await getRooms()
   
   if (!result.success) {
     return <div>Error loading rooms</div>
   }
 
-  return <KamarClient initialRooms={result.data || []} ownerId={ownerId} />
+  return <KamarClient initialRooms={result.data || []} ownerId={owner?.id || ''} />
 }
