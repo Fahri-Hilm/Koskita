@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Plus, Search, MoreVertical, FileText, Trash, UserX } from 'lucide-react'
+import { Plus, Search, MoreVertical, FileText, Trash, UserX, Sparkles } from 'lucide-react'
 import { Input } from '@/components/ui/input'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Table,
   TableBody,
@@ -35,6 +36,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from 'sonner'
 import { createTenant, archiveTenant } from '@/lib/actions/tenant.actions'
+import { uploadImage } from '@/lib/actions/upload.actions'
 import { Penghuni, Kamar } from '@prisma/client'
 
 type TenantWithRelations = Penghuni & {
@@ -61,16 +63,26 @@ export function PenghuniClient({ initialTenants, availableRooms, ownerId }: Peng
     noTelepon: '',
     alamatAsal: '',
     kamarId: '',
-    tanggalCheckIn: new Date().toISOString().split('T')[0]
+    tanggalCheckIn: new Date().toISOString().split('T')[0],
+    fotoKTP: ''
   })
+  const [ktpFile, setKtpFile] = useState<File | null>(null)
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
+      let ktpUrl = ''
+      if (ktpFile) {
+        const formDataUpload = new FormData()
+        formDataUpload.append('file', ktpFile)
+        ktpUrl = await uploadImage(formDataUpload)
+      }
+
       const result = await createTenant({
         ...formData,
+        fotoKTP: ktpUrl,
         tanggalCheckIn: new Date(formData.tanggalCheckIn)
       }, ownerId)
 
@@ -85,8 +97,10 @@ export function PenghuniClient({ initialTenants, availableRooms, ownerId }: Peng
           noTelepon: '',
           alamatAsal: '',
           kamarId: '',
-          tanggalCheckIn: new Date().toISOString().split('T')[0]
+          tanggalCheckIn: new Date().toISOString().split('T')[0],
+          fotoKTP: ''
         })
+        setKtpFile(null)
         // Update local state (simplified, ideally re-fetch or use result)
         // Since result.data is complex, we might just rely on revalidatePath and router.refresh()
         // But for now let's just reload the page to be safe or assume server action revalidates
@@ -95,7 +109,8 @@ export function PenghuniClient({ initialTenants, availableRooms, ownerId }: Peng
         toast.error(result.error || 'Gagal menambahkan penghuni')
       }
     } catch (error) {
-      toast.error('Terjadi kesalahan')
+      console.error(error)
+      toast.error(error instanceof Error ? error.message : 'Terjadi kesalahan')
     } finally {
       setIsLoading(false)
     }
@@ -119,16 +134,22 @@ export function PenghuniClient({ initialTenants, availableRooms, ownerId }: Peng
   )
 
   return (
-    <div className="space-y-8">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-8"
+    >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Daftar Penghuni</h1>
-          <p className="text-slate-500 mt-2">Kelola data penghuni dan status sewa</p>
+          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            Daftar Penghuni 🏠
+          </h1>
+          <p className="text-slate-500 mt-2 text-lg">Kelola data penghuni dan status sewa dengan mudah ✨</p>
         </div>
         
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2">
+            <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white gap-2 rounded-full shadow-lg shadow-indigo-500/30 transition-all hover:scale-105">
               <Plus className="w-4 h-4" /> Tambah Penghuni
             </Button>
           </DialogTrigger>
@@ -160,6 +181,16 @@ export function PenghuniClient({ initialTenants, availableRooms, ownerId }: Peng
                   onChange={(e) => setFormData({...formData, noIdentitas: e.target.value})}
                   required
                 />
+                <div className="space-y-1">
+                  <Label htmlFor="ktp-upload" className="text-xs text-slate-500">Foto KTP (Opsional)</Label>
+                  <Input 
+                    id="ktp-upload"
+                    type="file" 
+                    accept="image/*"
+                    onChange={(e) => setKtpFile(e.target.files?.[0] || null)}
+                    className="cursor-pointer"
+                  />
+                </div>
                 <FloatLabelInput 
                   label="No. Telepon" 
                   value={formData.noTelepon}
@@ -224,13 +255,13 @@ export function PenghuniClient({ initialTenants, availableRooms, ownerId }: Peng
         </Dialog>
       </div>
 
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-slate-200 flex gap-4">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+      <div className="bg-white/80 backdrop-blur-xl rounded-2xl border border-slate-200/60 shadow-xl shadow-indigo-100/50 overflow-hidden">
+        <div className="p-6 border-b border-slate-100 flex gap-4">
+          <div className="relative flex-1 max-w-sm group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
             <Input 
               placeholder="Cari nama atau nomor kamar..." 
-              className="pl-9 border-slate-200 focus-visible:ring-indigo-500"
+              className="pl-10 border-slate-200 focus-visible:ring-indigo-500 rounded-full bg-slate-50/50 focus:bg-white transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -238,7 +269,7 @@ export function PenghuniClient({ initialTenants, availableRooms, ownerId }: Peng
         </div>
 
         <Table>
-          <TableHeader className="bg-slate-50">
+          <TableHeader className="bg-slate-50/50">
             <TableRow>
               <TableHead>Nama Penghuni</TableHead>
               <TableHead>Kamar</TableHead>
@@ -249,42 +280,55 @@ export function PenghuniClient({ initialTenants, availableRooms, ownerId }: Peng
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredTenants.map((tenant) => (
-              <TableRow key={tenant.id} className="hover:bg-slate-50/50">
-                <TableCell>
+            <AnimatePresence>
+            {filteredTenants.map((tenant, index) => (
+              <motion.tr 
+                key={tenant.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ delay: index * 0.05 }}
+                className="group hover:bg-indigo-50/30 transition-colors border-b border-slate-100 last:border-0"
+              >
+                <TableCell className="py-4">
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9 bg-indigo-100 text-indigo-600">
-                      <AvatarFallback>{tenant.namaLengkap.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    <Avatar className="h-10 w-10 ring-2 ring-white shadow-sm">
+                      <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${tenant.namaLengkap}`} />
+                      <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-500 text-white">
+                        {tenant.namaLengkap.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
-                      <p className="font-medium text-slate-900">{tenant.namaLengkap}</p>
+                      <p className="font-semibold text-slate-900 group-hover:text-indigo-700 transition-colors">{tenant.namaLengkap}</p>
                       <p className="text-xs text-slate-500">{tenant.user.email}</p>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="font-medium text-slate-900">#{tenant.kamar.nomorKamar}</span>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200">
+                    #{tenant.kamar.nomorKamar}
+                  </span>
                 </TableCell>
-                <TableCell>{tenant.noTelepon}</TableCell>
-                <TableCell>{new Date(tenant.tanggalCheckIn).toLocaleDateString('id-ID')}</TableCell>
+                <TableCell className="text-slate-600">{tenant.noTelepon}</TableCell>
+                <TableCell className="text-slate-600">{new Date(tenant.tanggalCheckIn).toLocaleDateString('id-ID', { dateStyle: 'medium' })}</TableCell>
                 <TableCell>
                   <StatusBadge status={tenant.statusSewa} />
                 </TableCell>
                 <TableCell className="text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-indigo-50 hover:text-indigo-600">
                         <MoreVertical className="w-4 h-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="rounded-xl shadow-xl border-slate-100">
                       <DropdownMenuLabel>Aksi</DropdownMenuLabel>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem className="rounded-lg cursor-pointer">
                         <FileText className="w-4 h-4 mr-2" /> Detail Kontrak
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem 
-                        className="text-red-600 focus:text-red-600"
+                        className="text-red-600 focus:text-red-600 rounded-lg cursor-pointer focus:bg-red-50"
                         onClick={() => handleArchive(tenant.id)}
                       >
                         <UserX className="w-4 h-4 mr-2" /> Non-aktifkan
@@ -292,18 +336,24 @@ export function PenghuniClient({ initialTenants, availableRooms, ownerId }: Peng
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
-              </TableRow>
+              </motion.tr>
             ))}
+            </AnimatePresence>
             {filteredTenants.length === 0 && (
               <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-slate-500">
-                  Tidak ada data penghuni.
+                <TableCell colSpan={6} className="text-center py-12">
+                  <div className="flex flex-col items-center justify-center text-slate-400">
+                    <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center mb-3">
+                      <Search className="w-6 h-6 text-slate-300" />
+                    </div>
+                    <p>Tidak ada data penghuni ditemukan</p>
+                  </div>
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
       </div>
-    </div>
+    </motion.div>
   )
 }

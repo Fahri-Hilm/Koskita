@@ -16,18 +16,19 @@ import { Label } from '@/components/ui/label'
 import { StatusBadge } from '@/components/shared/status-badge'
 import { toast } from 'sonner'
 import { createPayment } from '@/lib/actions/payment.actions'
+import { uploadImage } from '@/lib/actions/upload.actions'
 import { Pembayaran } from '@prisma/client'
-import { Upload, Plus, Calendar as CalendarIcon, DollarSign } from 'lucide-react'
+import { Upload, Plus, Calendar as CalendarIcon, DollarSign, CreditCard, Wallet } from 'lucide-react'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
+import { motion } from 'framer-motion'
 
 interface PembayaranClientProps {
   initialPayments: Pembayaran[]
-  penghuniId: string
   hargaSewa: number
 }
 
-export function PembayaranClient({ initialPayments, penghuniId, hargaSewa }: PembayaranClientProps) {
+export function PembayaranClient({ initialPayments, hargaSewa }: PembayaranClientProps) {
   const [payments, setPayments] = useState<Pembayaran[]>(initialPayments)
   const [isUploadOpen, setIsUploadOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -46,15 +47,14 @@ export function PembayaranClient({ initialPayments, penghuniId, hargaSewa }: Pem
 
     setIsLoading(true)
     try {
-      // Simulate file upload and get URL
-      // In a real app, upload to S3/Cloudinary here
-      const fakeUrl = `https://fake-storage.com/bukti/${Date.now()}.jpg`
+      const formData = new FormData()
+      formData.append('file', buktiFile)
+      const buktiUrl = await uploadImage(formData)
       
       const result = await createPayment({
-        penghuniId,
         bulan: new Date(bulan + '-01'), // Add day to make it a valid date
         jumlah: parseInt(jumlah),
-        buktiURL: fakeUrl
+        buktiURL: buktiUrl
       })
 
       if (result.success && result.data) {
@@ -73,15 +73,21 @@ export function PembayaranClient({ initialPayments, penghuniId, hargaSewa }: Pem
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-8"
+    >
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Riwayat Pembayaran</h1>
-          <p className="text-slate-500 mt-2">Kelola dan upload bukti pembayaran sewa</p>
+          <h1 className="text-4xl font-extrabold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+            Riwayat Pembayaran 💸
+          </h1>
+          <p className="text-slate-500 mt-2 text-lg">Kelola dan upload bukti pembayaran sewa dengan mudah</p>
         </div>
         <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+            <Button className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-full shadow-lg shadow-emerald-500/30 transition-all hover:scale-105">
               <Plus className="w-4 h-4 mr-2" /> Upload Bukti
             </Button>
           </DialogTrigger>
@@ -151,43 +157,53 @@ export function PembayaranClient({ initialPayments, penghuniId, hargaSewa }: Pem
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {payments.map((payment) => (
-          <Card key={payment.id} className="border-slate-200 hover:shadow-md transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start mb-2">
-                <StatusBadge status={payment.status} />
-                <span className="text-xs text-slate-400">
-                  {format(new Date(payment.createdAt), 'dd MMM yyyy', { locale: id })}
-                </span>
-              </div>
-              <CardTitle className="text-lg font-semibold text-slate-900">
-                {format(new Date(payment.bulan), 'MMMM yyyy', { locale: id })}
-              </CardTitle>
-              <CardDescription>
-                Pembayaran Sewa
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2 text-2xl font-bold text-slate-900">
-                <span className="text-sm font-normal text-slate-500">Rp</span>
-                {payment.jumlah.toLocaleString('id-ID')}
-              </div>
-            </CardContent>
-            <CardFooter className="pt-0">
-              <Button variant="outline" className="w-full text-xs h-8" asChild>
-                <a href={payment.buktiURL || '#'} target="_blank" rel="noopener noreferrer">
-                  Lihat Bukti
-                </a>
-              </Button>
-            </CardFooter>
-          </Card>
+        {payments.map((payment, index) => (
+          <motion.div
+            key={payment.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card className="border-slate-200/60 hover:shadow-xl hover:shadow-emerald-100/50 transition-all hover:-translate-y-1 bg-white/50 backdrop-blur-sm group">
+              <CardHeader className="pb-3">
+                <div className="flex justify-between items-start mb-2">
+                  <StatusBadge status={payment.status} />
+                  <span className="text-xs text-slate-400 font-medium bg-slate-100 px-2 py-1 rounded-full">
+                    {format(new Date(payment.createdAt), 'dd MMM yyyy', { locale: id })}
+                  </span>
+                </div>
+                <CardTitle className="text-xl font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">
+                  {format(new Date(payment.bulan), 'MMMM yyyy', { locale: id })}
+                </CardTitle>
+                <CardDescription className="flex items-center gap-1">
+                  <CreditCard className="w-3 h-3" /> Pembayaran Sewa
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-baseline gap-1 text-3xl font-extrabold text-slate-900">
+                  <span className="text-sm font-medium text-slate-500">Rp</span>
+                  {payment.jumlah.toLocaleString('id-ID')}
+                </div>
+              </CardContent>
+              <CardFooter className="pt-0">
+                <Button variant="outline" className="w-full text-xs h-9 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800" asChild>
+                  <a href={payment.buktiURL || '#'} target="_blank" rel="noopener noreferrer">
+                    Lihat Bukti Transfer 🧾
+                  </a>
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
         ))}
         {payments.length === 0 && (
-          <div className="col-span-full text-center py-12 text-slate-500">
-            Belum ada riwayat pembayaran.
+          <div className="col-span-full text-center py-12 text-slate-500 flex flex-col items-center">
+            <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mb-4">
+              <Wallet className="w-8 h-8 text-emerald-300" />
+            </div>
+            <p>Belum ada riwayat pembayaran.</p>
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }

@@ -2,10 +2,7 @@ import { getTenantDashboardData } from '@/lib/actions/tenant.actions'
 import { DashboardClient } from '@/components/penghuni/dashboard-client'
 
 export default async function PenghuniDashboard() {
-  // Hardcoded tenant ID for Sprint 11
-  const penghuniId = 'cm7d9x0un0000356999999999'
-  
-  const result = await getTenantDashboardData(penghuniId)
+  const result = await getTenantDashboardData()
   
   if (!result.success || !result.data) {
     return (

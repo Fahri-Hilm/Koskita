@@ -45,10 +45,23 @@ export async function getComplaints() {
   }
 }
 
-export async function getTenantComplaints(penghuniId: string) {
+export async function getTenantComplaints() {
   try {
+    const session = await auth()
+    if (!session?.user?.id || session.user.role !== 'PENGHUNI') {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const tenant = await db.penghuni.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!tenant) {
+      return { success: false, error: 'Data penghuni tidak ditemukan' }
+    }
+
     const complaints = await db.pengaduan.findMany({
-      where: { penghuniId },
+      where: { penghuniId: tenant.id },
       orderBy: { createdAt: 'desc' }
     })
     return { success: true, data: complaints }
@@ -58,19 +71,42 @@ export async function getTenantComplaints(penghuniId: string) {
 }
 
 export async function createComplaint(data: {
-  penghuniId: string
   judul: string
   deskripsi: string
   fotoURL?: string
 }) {
   try {
+    const session = await auth()
+    if (!session?.user?.id || session.user.role !== 'PENGHUNI') {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const tenant = await db.penghuni.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!tenant) {
+      return { success: false, error: 'Data penghuni tidak ditemukan' }
+    }
+
     const complaint = await db.pengaduan.create({
       data: {
-        penghuniId: data.penghuniId,
+        penghuniId: tenant.id,
         judul: data.judul,
         deskripsi: data.deskripsi,
         fotoURL: data.fotoURL,
         status: 'BARU'
+      }
+    })
+
+    // Create notification for owner
+    await db.notifikasi.create({
+      data: {
+        ownerId: tenant.ownerId,
+        tipe: 'PENGADUAN_BARU',
+        judul: 'Pengaduan Baru',
+        konten: `${tenant.namaLengkap} melaporkan: ${data.judul}`,
+        isRead: false
       }
     })
     

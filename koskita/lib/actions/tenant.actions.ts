@@ -165,10 +165,15 @@ export async function archiveTenant(id: string) {
   }
 }
 
-export async function getTenantDashboardData(penghuniId: string) {
+export async function getTenantDashboardData() {
   try {
+    const session = await auth()
+    if (!session?.user?.id || session.user.role !== 'PENGHUNI') {
+      return { success: false, error: 'Unauthorized' }
+    }
+
     const tenant = await db.penghuni.findUnique({
-      where: { id: penghuniId },
+      where: { userId: session.user.id },
       include: {
         kamar: true,
         pembayaran: {

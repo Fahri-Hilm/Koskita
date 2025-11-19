@@ -18,6 +18,8 @@ import { Button } from '@/components/ui/button'
 import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 
+import { NotificationBell } from '@/components/layout/notification-bell'
+
 interface OwnerLayoutProps {
   children: React.ReactNode
 }
@@ -30,7 +32,7 @@ export function OwnerLayout({ children }: OwnerLayoutProps) {
     { icon: LayoutDashboard, label: 'Dashboard', href: '/owner/dashboard' },
     { icon: BedDouble, label: 'Kamar', href: '/owner/kamar' },
     { icon: Users, label: 'Penghuni', href: '/owner/penghuni' },
-    { icon: Wallet, label: 'Keuangan', href: '/owner/keuangan/pembayaran' },
+    { icon: Wallet, label: 'Keuangan', href: '/owner/pembayaran' },
     { icon: MessageSquare, label: 'Pengaduan', href: '/owner/pengaduan' },
   ]
 
@@ -96,9 +98,12 @@ export function OwnerLayout({ children }: OwnerLayoutProps) {
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 w-full bg-white border-b border-slate-200 z-20 px-4 py-3 flex items-center justify-between">
         <span className="text-xl font-bold text-indigo-600">KOSKITA</span>
-        <Button variant="ghost" size="icon">
-          <Menu className="w-6 h-6" />
-        </Button>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <Button variant="ghost" size="icon">
+            <Menu className="w-6 h-6" />
+          </Button>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -108,6 +113,10 @@ export function OwnerLayout({ children }: OwnerLayoutProps) {
           isSidebarOpen ? "md:ml-[280px]" : "md:ml-[80px]"
         )}
       >
+        {/* Desktop Header with Notification */}
+        <div className="hidden md:flex justify-end mb-6">
+          <NotificationBell />
+        </div>
         {children}
       </main>
     </div>

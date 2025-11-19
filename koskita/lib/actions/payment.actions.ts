@@ -45,10 +45,23 @@ export async function getPayments() {
   }
 }
 
-export async function getTenantPayments(penghuniId: string) {
+export async function getTenantPayments() {
   try {
+    const session = await auth()
+    if (!session?.user?.id || session.user.role !== 'PENGHUNI') {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const tenant = await db.penghuni.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!tenant) {
+      return { success: false, error: 'Data penghuni tidak ditemukan' }
+    }
+
     const payments = await db.pembayaran.findMany({
-      where: { penghuniId },
+      where: { penghuniId: tenant.id },
       orderBy: { bulan: 'desc' }
     })
     return { success: true, data: payments }
@@ -58,23 +71,46 @@ export async function getTenantPayments(penghuniId: string) {
 }
 
 export async function createPayment(data: {
-  penghuniId: string
   bulan: Date
   jumlah: number
   buktiURL: string
 }) {
   try {
+    const session = await auth()
+    if (!session?.user?.id || session.user.role !== 'PENGHUNI') {
+      return { success: false, error: 'Unauthorized' }
+    }
+
+    const tenant = await db.penghuni.findUnique({
+      where: { userId: session.user.id }
+    })
+
+    if (!tenant) {
+      return { success: false, error: 'Data penghuni tidak ditemukan' }
+    }
+
     // Ensure bulan is set to first day of month to avoid duplicates
     const bulanDate = new Date(data.bulan.getFullYear(), data.bulan.getMonth(), 1)
 
     const payment = await db.pembayaran.create({
       data: {
-        penghuniId: data.penghuniId,
+        penghuniId: tenant.id,
         bulan: bulanDate,
         jumlah: data.jumlah,
         buktiURL: data.buktiURL,
         status: 'PENDING',
         tglUpload: new Date()
+      }
+    })
+
+    // Create notification for owner
+    await db.notifikasi.create({
+      data: {
+        ownerId: tenant.ownerId,
+        tipe: 'PEMBAYARAN_BARU',
+        judul: 'Pembayaran Baru',
+        konten: `${tenant.namaLengkap} telah mengupload bukti pembayaran untuk bulan ${bulanDate.toLocaleString('id-ID', { month: 'long', year: 'numeric' })}`,
+        isRead: false
       }
     })
     
