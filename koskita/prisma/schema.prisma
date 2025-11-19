@@ -1,0 +1,227 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  PENGHUNI
+}
+
+enum StatusKamar {
+  KOSONG
+  TERISI
+  AKAN_KOSONG
+  MAINTENANCE
+}
+
+enum StatusSewa {
+  AKTIF
+  NON_AKTIF
+}
+
+enum StatusPembayaran {
+  PENDING
+  DIVERIFIKASI
+  JATUH_TEMPO
+  LUNAS
+}
+
+enum StatusPengaduan {
+  BARU
+  DIPROSES
+  SELESAI
+}
+
+enum TipeNotifikasi {
+  PENGADUAN_BARU
+  KONTRAK_BERAKHIR
+  PEMBAYARAN_JATUH_TEMPO
+  CHECKOUT_REQUEST
+}
+
+// User (Owner + Penghuni Login)
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(PENGHUNI)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  owner     Owner?
+  penghuni  Penghuni?
+
+  @@index([email])
+}
+
+// Owner Profile
+model Owner {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id])
+  namaKos       String
+  alamat        String
+  noTelepon     String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  kamar         Kamar[]
+  penghuni      Penghuni[]
+  notifikasi    Notifikasi[]
+}
+
+// Kamar
+model Kamar {
+  id            String    @id @default(cuid())
+  ownerId       String
+  owner         Owner     @relation(fields: [ownerId], references: [id])
+  nomorKamar    String
+  tipe          String    // "AC", "Non-AC", "Premium"
+  hargaSewa     Int       // per bulan
+  status        StatusKamar @default(KOSONG)
+  fasilitas     String[]  // ["Kasur", "Lemari", "Meja"]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  penghuni      Penghuni?
+  riwayat       RiwayatKamar[]
+
+  @@unique([ownerId, nomorKamar])
+  @@index([ownerId, status])
+}
+
+// Penghuni (Tenant)
+model Penghuni {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id])
+  ownerId         String
+  owner           Owner     @relation(fields: [ownerId], references: [id])
+  kamarId         String    @unique
+  kamar           Kamar     @relation(fields: [kamarId], references: [id])
+  
+  namaLengkap     String
+  noIdentitas     String    @unique
+  fotoKTP         String    // Cloudinary URL
+  noTelepon       String
+  alamatAsal      String
+  
+  tanggalCheckIn  DateTime
+  tanggalCheckOut DateTime?
+  statusSewa      StatusSewa @default(AKTIF)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  archivedAt      DateTime?
+
+  pembayaran      Pembayaran[]
+  pengaduan       Pengaduan[]
+  checkoutRequest CheckoutRequest?
+  kontrakSewa     KontrakSewa[]
+
+  @@index([ownerId, statusSewa])
+  @@index([archivedAt])
+}
+
+// Kontrak Sewa
+model KontrakSewa {
+  id            String    @id @default(cuid())
+  penghuni      Penghuni  @relation(fields: [penghuniId], references: [id])
+  penghuniId    String
+  
+  dokumenURL    String    // Cloudinary PDF
+  tanggalMulai  DateTime
+  tanggalBerakhir DateTime
+  createdAt     DateTime  @default(now())
+}
+
+// Pembayaran
+model Pembayaran {
+  id            String    @id @default(cuid())
+  penghuniId    String
+  penghuni      Penghuni  @relation(fields: [penghuniId], references: [id])
+  
+  bulan         DateTime  // Jan 2025, etc
+  jumlah        Int
+  status        StatusPembayaran @default(PENDING)
+  buktiURL      String?   // Cloudinary image
+  tglUpload     DateTime?
+  tglVerifikasi DateTime?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([penghuniId, bulan])
+  @@index([penghuniId, status])
+}
+
+// Pengaduan / Complaint
+model Pengaduan {
+  id            String    @id @default(cuid())
+  penghuniId    String
+  penghuni      Penghuni  @relation(fields: [penghuniId], references: [id])
+  
+  judul         String
+  deskripsi     String
+  status        StatusPengaduan @default(BARU)
+  fotoURL       String?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([penghuniId, status])
+}
+
+// Check-out Request
+model CheckoutRequest {
+  id            String    @id @default(cuid())
+  penghuniId    String    @unique
+  penghuni      Penghuni  @relation(fields: [penghuniId], references: [id])
+  
+  tanggalAjuan  DateTime  @default(now())
+  tanggalCheckOut DateTime
+  alasan        String?
+  
+  statusPembayaran StatusPembayaran @default(PENDING)
+  denda         Int       @default(0)
+  kerusakan     Int       @default(0)
+  
+  isFinalized   Boolean   @default(false)
+  finalizedAt   DateTime?
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// Notifikasi
+model Notifikasi {
+  id            String    @id @default(cuid())
+  ownerId       String
+  owner         Owner     @relation(fields: [ownerId], references: [id])
+  
+  tipe          TipeNotifikasi
+  judul         String
+  konten        String
+  isRead        Boolean   @default(false)
+  
+  createdAt     DateTime  @default(now())
+}
+
+// Riwayat Kamar (untuk tracking perubahan status)
+model RiwayatKamar {
+  id            String    @id @default(cuid())
+  kamarId       String
+  kamar         Kamar     @relation(fields: [kamarId], references: [id])
+  
+  statusLama    StatusKamar
+  statusBaru    StatusKamar
+  catatan       String?
+  
+  createdAt     DateTime  @default(now())
+}
