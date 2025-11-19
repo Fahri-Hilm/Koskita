@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils'
 
 interface StatusBadgeProps {
-  status: 'KOSONG' | 'TERISI' | 'AKAN_KOSONG' | 'MAINTENANCE' | 'PENDING' | 'DIVERIFIKASI' | 'JATUH_TEMPO' | 'LUNAS' | 'BARU' | 'DIPROSES' | 'SELESAI'
+  status: 'KOSONG' | 'TERISI' | 'AKAN_KOSONG' | 'MAINTENANCE' | 'PENDING' | 'DIVERIFIKASI' | 'JATUH_TEMPO' | 'LUNAS' | 'BARU' | 'DIPROSES' | 'SELESAI' | 'AKTIF' | 'NON_AKTIF'
   className?: string
 }
 
@@ -23,6 +23,10 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     BARU: 'bg-blue-100 text-blue-700 border-blue-200',
     DIPROSES: 'bg-yellow-100 text-yellow-700 border-yellow-200',
     SELESAI: 'bg-green-100 text-green-700 border-green-200',
+
+    // Sewa Status
+    AKTIF: 'bg-green-100 text-green-700 border-green-200',
+    NON_AKTIF: 'bg-gray-100 text-gray-700 border-gray-200',
   }
 
   const labels: Record<string, string> = {
@@ -37,6 +41,8 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     BARU: 'Baru',
     DIPROSES: 'Diproses',
     SELESAI: 'Selesai',
+    AKTIF: 'Aktif',
+    NON_AKTIF: 'Non Aktif',
   }
 
   return (
