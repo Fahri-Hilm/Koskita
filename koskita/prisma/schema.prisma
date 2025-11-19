@@ -29,6 +29,7 @@ enum StatusPembayaran {
   DIVERIFIKASI
   JATUH_TEMPO
   LUNAS
+  DITOLAK
 }
 
 enum StatusPengaduan {

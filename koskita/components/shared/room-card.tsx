@@ -11,9 +11,11 @@ interface RoomCardProps {
   status: 'KOSONG' | 'TERISI' | 'AKAN_KOSONG' | 'MAINTENANCE'
   penghuniName?: string
   onDetail?: () => void
+  onEdit?: () => void
+  onDelete?: () => void
 }
 
-export function RoomCard({ nomorKamar, tipe, harga, status, penghuniName, onDetail }: RoomCardProps) {
+export function RoomCard({ nomorKamar, tipe, harga, status, penghuniName, onDetail, onEdit, onDelete }: RoomCardProps) {
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300 border-slate-200">
       <CardHeader className="p-0 h-32 bg-gradient-to-br from-indigo-500 to-purple-600 relative flex items-center justify-center">
@@ -59,14 +61,26 @@ export function RoomCard({ nomorKamar, tipe, harga, status, penghuniName, onDeta
           </Badge>
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
-        <Button 
-          onClick={onDetail} 
-          variant="outline" 
-          className="w-full border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700"
-        >
-          Lihat Detail
-        </Button>
+      <CardFooter className="p-4 pt-0 flex gap-2">
+        {onEdit ? (
+          <>
+            <Button onClick={onEdit} variant="outline" className="flex-1 border-indigo-200 text-indigo-600">
+              Edit
+            </Button>
+            <Button onClick={onDelete} variant="destructive" size="icon">
+              <span className="sr-only">Hapus</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            </Button>
+          </>
+        ) : (
+          <Button 
+            onClick={onDetail} 
+            variant="outline" 
+            className="w-full border-indigo-200 text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700"
+          >
+            Lihat Detail
+          </Button>
+        )}
       </CardFooter>
     </Card>
   )

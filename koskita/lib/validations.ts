@@ -7,10 +7,13 @@ export const loginSchema = z.object({
 
 export const penghuniSchema = z.object({
   namaLengkap: z.string().min(3, 'Nama minimal 3 karakter'),
+  email: z.string().email('Email tidak valid'),
   noIdentitas: z.string().regex(/^\d{16}$/, 'Nomor identitas tidak valid'),
   noTelepon: z.string().regex(/^08\d{9,11}$/, 'Nomor telepon tidak valid'),
   alamatAsal: z.string().min(5, 'Alamat minimal 5 karakter'),
   tanggalCheckIn: z.date(),
+  kamarId: z.string().min(1, 'Kamar wajib dipilih'),
+  fotoKTP: z.string().optional(), // URL from Cloudinary
 })
 
 export const kamarSchema = z.object({
