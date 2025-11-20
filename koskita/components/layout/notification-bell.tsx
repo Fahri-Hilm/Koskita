@@ -60,20 +60,20 @@ export function NotificationBell() {
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
-          <Bell className="w-5 h-5 text-slate-500" />
+          <Bell className="w-5 h-5 text-slate-500 dark:text-slate-400" />
           {unreadCount > 0 && (
-            <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white" />
+            <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white dark:border-slate-900" />
           )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-80 p-0" align="end">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
           <h4 className="font-semibold text-sm">Notifikasi</h4>
           {unreadCount > 0 && (
             <Button 
               variant="ghost" 
               size="sm" 
-              className="text-xs text-indigo-600 h-auto p-0 hover:bg-transparent"
+              className="text-xs text-indigo-600 dark:text-indigo-400 h-auto p-0 hover:bg-transparent"
               onClick={handleMarkAllRead}
             >
               Tandai semua dibaca
@@ -82,29 +82,29 @@ export function NotificationBell() {
         </div>
         <div className="h-[300px] overflow-y-auto">
           {notifications.length === 0 ? (
-            <div className="p-8 text-center text-slate-500 text-sm">
+            <div className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">
               Belum ada notifikasi
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800">
               {notifications.map((notification) => (
                 <div 
                   key={notification.id}
                   className={cn(
-                    "p-4 hover:bg-slate-50 transition-colors cursor-pointer",
-                    !notification.isRead && "bg-indigo-50/50"
+                    "p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer",
+                    !notification.isRead && "bg-indigo-50/50 dark:bg-indigo-900/20"
                   )}
                   onClick={() => !notification.isRead && handleMarkAsRead(notification.id)}
                 >
                   <div className="flex justify-between items-start gap-2">
-                    <h5 className={cn("text-sm font-medium", !notification.isRead ? "text-indigo-900" : "text-slate-900")}>
+                    <h5 className={cn("text-sm font-medium", !notification.isRead ? "text-indigo-900 dark:text-indigo-100" : "text-slate-900 dark:text-slate-100")}>
                       {notification.judul}
                     </h5>
-                    <span className="text-[10px] text-slate-400 whitespace-nowrap">
+                    <span className="text-[10px] text-slate-400 dark:text-slate-500 whitespace-nowrap">
                       {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true, locale: id })}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
                     {notification.konten}
                   </p>
                 </div>

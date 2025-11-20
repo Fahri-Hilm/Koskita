@@ -23,7 +23,7 @@ export default async function PenghuniAkunPage() {
         <CardHeader className="pb-4">
           <div className="flex items-center gap-4">
             <Avatar className="w-16 h-16">
-              <AvatarImage src={tenant.fotoProfil || ''} />
+              <AvatarImage src={tenant.fotoKTP || ''} />
               <AvatarFallback className="bg-indigo-100 text-indigo-600 text-xl">
                 {tenant.namaLengkap.charAt(0)}
               </AvatarFallback>
@@ -42,7 +42,7 @@ export default async function PenghuniAkunPage() {
               <label className="text-sm font-medium text-slate-500 flex items-center gap-2">
                 <Phone className="w-4 h-4" /> Nomor Telepon
               </label>
-              <p className="text-slate-900">{tenant.nomorTelepon}</p>
+              <p className="text-slate-900">{tenant.noTelepon}</p>
             </div>
             
             <div className="space-y-1">
@@ -59,7 +59,7 @@ export default async function PenghuniAkunPage() {
                 <Calendar className="w-4 h-4" /> Tanggal Masuk
               </label>
               <p className="text-slate-900">
-                {format(new Date(tenant.tglMasuk), 'd MMMM yyyy', { locale: id })}
+                {format(new Date(tenant.tanggalCheckIn), 'd MMMM yyyy', { locale: id })}
               </p>
             </div>
           </div>

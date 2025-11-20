@@ -83,7 +83,7 @@ export function PengaduanClient({ initialComplaints }: PengaduanClientProps) {
           <h1 className="text-4xl font-extrabold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
             Pengaduan 📢
           </h1>
-          <p className="text-slate-500 mt-2 text-lg">Laporkan masalah atau keluhan Anda, kami siap membantu!</p>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">Laporkan masalah atau keluhan Anda, kami siap membantu!</p>
         </div>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
@@ -149,33 +149,33 @@ export function PengaduanClient({ initialComplaints }: PengaduanClientProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="border-slate-200/60 hover:shadow-xl hover:shadow-rose-100/50 transition-all hover:-translate-y-1 bg-white/50 backdrop-blur-sm group h-full flex flex-col">
+            <Card className="border-slate-200/60 dark:border-slate-800 hover:shadow-xl hover:shadow-rose-100/50 dark:hover:shadow-rose-900/20 transition-all hover:-translate-y-1 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm group h-full flex flex-col">
               <CardHeader className="pb-3 flex-1">
                 <div className="flex justify-between items-start mb-3">
                   <StatusBadge status={complaint.status} />
-                  <span className="text-xs text-slate-400 font-medium bg-slate-100 px-2 py-1 rounded-full">
+                  <span className="text-xs text-slate-400 dark:text-slate-500 font-medium bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">
                     {format(new Date(complaint.createdAt), 'dd MMM', { locale: id })}
                   </span>
                 </div>
-                <CardTitle className="text-lg font-bold text-slate-900 line-clamp-1 group-hover:text-rose-600 transition-colors">
+                <CardTitle className="text-lg font-bold text-slate-900 dark:text-slate-100 line-clamp-1 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">
                   {complaint.judul}
                 </CardTitle>
-                <CardDescription className="line-clamp-3 mt-2 text-slate-600">
+                <CardDescription className="line-clamp-3 mt-2 text-slate-600 dark:text-slate-400">
                   {complaint.deskripsi}
                 </CardDescription>
               </CardHeader>
-              <CardFooter className="pt-0 mt-auto border-t border-slate-100/50 p-4 bg-slate-50/30">
-                <div className="flex items-center text-xs font-medium text-slate-500 w-full">
+              <CardFooter className="pt-0 mt-auto border-t border-slate-100/50 dark:border-slate-800/50 p-4 bg-slate-50/30 dark:bg-slate-900/30">
+                <div className="flex items-center text-xs font-medium text-slate-500 dark:text-slate-400 w-full">
                   {complaint.status === 'BARU' ? (
-                    <div className="flex items-center text-amber-600 bg-amber-50 px-2 py-1 rounded-md w-full">
+                    <div className="flex items-center text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-md w-full">
                       <AlertCircle className="w-3 h-3 mr-2" /> Menunggu respon owner
                     </div>
                   ) : complaint.status === 'DIPROSES' ? (
-                    <div className="flex items-center text-blue-600 bg-blue-50 px-2 py-1 rounded-md w-full">
+                    <div className="flex items-center text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/30 px-2 py-1 rounded-md w-full">
                       <MessageSquare className="w-3 h-3 mr-2" /> Sedang ditangani
                     </div>
                   ) : (
-                    <div className="flex items-center text-green-600 bg-green-50 px-2 py-1 rounded-md w-full">
+                    <div className="flex items-center text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 px-2 py-1 rounded-md w-full">
                       <CheckCircle2 className="w-3 h-3 mr-2" /> Masalah selesai
                     </div>
                   )}
@@ -185,9 +185,9 @@ export function PengaduanClient({ initialComplaints }: PengaduanClientProps) {
           </motion.div>
         ))}
         {complaints.length === 0 && (
-          <div className="col-span-full text-center py-12 text-slate-500 flex flex-col items-center">
-            <div className="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mb-4">
-              <MessageSquare className="w-8 h-8 text-rose-300" />
+          <div className="col-span-full text-center py-12 text-slate-500 dark:text-slate-400 flex flex-col items-center">
+            <div className="w-16 h-16 bg-rose-50 dark:bg-rose-900/20 rounded-full flex items-center justify-center mb-4">
+              <MessageSquare className="w-8 h-8 text-rose-300 dark:text-rose-400" />
             </div>
             <p>Belum ada pengaduan yang dibuat. Aman terkendali! 👍</p>
           </div>

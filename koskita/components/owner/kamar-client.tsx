@@ -85,16 +85,18 @@ export function KamarClient({ initialRooms, ownerId }: KamarClientProps) {
   })
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 p-1">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Manajemen Kamar</h1>
-          <p className="text-slate-500 mt-2">Kelola daftar kamar dan statusnya</p>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
+            Manajemen Kamar
+          </h1>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Kelola daftar kamar dan statusnya</p>
         </div>
         
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2">
+            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2 shadow-lg shadow-indigo-500/20 transition-all hover:-translate-y-0.5">
               <Plus className="w-4 h-4" /> Tambah Kamar
             </Button>
           </DialogTrigger>
@@ -163,19 +165,19 @@ export function KamarClient({ initialRooms, ownerId }: KamarClientProps) {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+      <div className="flex flex-col md:flex-row gap-4 bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input 
             placeholder="Cari nomor kamar..." 
-            className="pl-9 border-slate-200"
+            className="pl-9 border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus-visible:ring-indigo-500"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <div className="w-full md:w-[200px]">
           <Select value={filterStatus} onValueChange={setFilterStatus}>
-            <SelectTrigger>
+            <SelectTrigger className="border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-slate-500" />
                 <SelectValue placeholder="Filter Status" />
@@ -211,8 +213,11 @@ export function KamarClient({ initialRooms, ownerId }: KamarClientProps) {
       </div>
 
       {filteredRooms.length === 0 && (
-        <div className="text-center py-12 text-slate-500">
-          Tidak ada kamar yang ditemukan.
+        <div className="text-center py-12 text-slate-500 dark:text-slate-400 flex flex-col items-center">
+          <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+            <Search className="w-8 h-8 text-slate-400" />
+          </div>
+          <p>Tidak ada kamar yang ditemukan.</p>
         </div>
       )}
     </div>

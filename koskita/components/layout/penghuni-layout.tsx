@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button'
 import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 
+import { ModeToggle } from '@/components/mode-toggle'
+
 interface PenghuniLayoutProps {
   children: React.ReactNode
 }
@@ -30,10 +32,10 @@ export function PenghuniLayout({ children }: PenghuniLayoutProps) {
   ]
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-20 md:pb-0">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-20 md:pb-0">
       {/* Desktop Header */}
-      <header className="hidden md:flex bg-white border-b border-slate-200 px-8 py-4 items-center justify-between sticky top-0 z-20">
-        <span className="text-2xl font-bold text-indigo-600">KOSKITA</span>
+      <header className="hidden md:flex bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-8 py-4 items-center justify-between sticky top-0 z-20">
+        <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">KOSKITA</span>
         <div className="flex items-center gap-6">
           <nav className="flex gap-6">
             {menuItems.map((item) => (
@@ -41,36 +43,42 @@ export function PenghuniLayout({ children }: PenghuniLayoutProps) {
                 key={item.href} 
                 href={item.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-indigo-600",
-                  pathname.startsWith(item.href) ? "text-indigo-600" : "text-slate-500"
+                  "text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-indigo-400",
+                  pathname.startsWith(item.href) ? "text-indigo-600 dark:text-indigo-400" : "text-slate-500 dark:text-slate-400"
                 )}
               >
                 {item.label}
               </Link>
             ))}
           </nav>
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => signOut({ callbackUrl: '/login' })}
-            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-          >
-            <LogOut className="w-4 h-4 mr-2" /> Keluar
-          </Button>
+          <div className="flex items-center gap-4">
+            <ModeToggle />
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => signOut({ callbackUrl: '/login' })}
+              className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
+            >
+              <LogOut className="w-4 h-4 mr-2" /> Keluar
+            </Button>
+          </div>
         </div>
       </header>
 
       {/* Mobile Header */}
-      <header className="md:hidden bg-white border-b border-slate-200 px-4 py-3 sticky top-0 z-20 flex justify-between items-center">
-        <span className="text-xl font-bold text-indigo-600">KOSKITA</span>
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => signOut({ callbackUrl: '/login' })}
-          className="text-slate-500"
-        >
-          <LogOut className="w-5 h-5" />
-        </Button>
+      <header className="md:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 py-3 sticky top-0 z-20 flex justify-between items-center">
+        <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">KOSKITA</span>
+        <div className="flex items-center gap-2">
+          <ModeToggle />
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => signOut({ callbackUrl: '/login' })}
+            className="text-slate-500 dark:text-slate-400"
+          >
+            <LogOut className="w-5 h-5" />
+          </Button>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -79,7 +87,7 @@ export function PenghuniLayout({ children }: PenghuniLayoutProps) {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-20 px-6 py-2 flex justify-between items-center safe-area-bottom">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 z-20 px-6 py-2 flex justify-between items-center safe-area-bottom">
         {menuItems.map((item) => {
           const isActive = pathname.startsWith(item.href)
           return (
@@ -88,14 +96,14 @@ export function PenghuniLayout({ children }: PenghuniLayoutProps) {
                 whileTap={{ scale: 0.9 }}
                 className={cn(
                   "p-1.5 rounded-xl transition-colors",
-                  isActive ? "bg-indigo-50 text-indigo-600" : "text-slate-400"
+                  isActive ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400" : "text-slate-400 dark:text-slate-500"
                 )}
               >
                 <item.icon className="w-6 h-6" />
               </motion.div>
               <span className={cn(
                 "text-[10px] font-medium",
-                isActive ? "text-indigo-600" : "text-slate-400"
+                isActive ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 dark:text-slate-500"
               )}>
                 {item.label}
               </span>

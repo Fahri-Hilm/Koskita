@@ -1,4 +1,12 @@
-# 🏠 KOSKITA - Platform Manajemen Kos-Kosan Modern
+# 🏠 KOSKITA - Platf## 📚 Documentation
+
+Detailed documentation can be found in the `docs/` directory:
+
+- [Project Summary](docs/PROJECT_SUMMARY.md)
+- [Technical Planning](docs/TECHNICAL_PLANNING.md)
+- [API Reference](docs/API_REFERENCE.md)
+
+---men Kos-Kosan Modern
 
 **KOSKITA** adalah platform web modern untuk mengelola kos-kosan dengan sistem role-based access (Owner & Penghuni), desain Gen Z yang minimalis, dan performa ringan.
 
@@ -18,7 +26,18 @@
 
 ---
 
-## 🚀 Quick Start
+## � Documentation
+
+Detailed documentation can be found in the `docs/` directory:
+
+- [Project Summary](docs/PROJECT_SUMMARY.md)
+- [Technical Planning](docs/TECHNICAL_PLANNING.md)
+- [API Reference](docs/API_REFERENCE.md)
+- [Implementation Checklist](docs/IMPLEMENTATION_CHECKLIST.md)
+
+---
+
+## �🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+ ([Download](https://nodejs.org))

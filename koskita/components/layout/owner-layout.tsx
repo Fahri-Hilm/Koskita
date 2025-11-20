@@ -19,6 +19,7 @@ import { signOut } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 
 import { NotificationBell } from '@/components/layout/notification-bell'
+import { ModeToggle } from '@/components/mode-toggle'
 
 interface OwnerLayoutProps {
   children: React.ReactNode
@@ -37,18 +38,18 @@ export function OwnerLayout({ children }: OwnerLayoutProps) {
   ]
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex">
       {/* Sidebar */}
       <motion.aside
         initial={{ width: 280 }}
         animate={{ width: isSidebarOpen ? 280 : 80 }}
-        className="bg-white border-r border-slate-200 fixed h-full z-20 hidden md:flex flex-col"
+        className="bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 fixed h-full z-20 hidden md:flex flex-col"
       >
         <div className="p-6 flex items-center justify-between">
           {isSidebarOpen ? (
-            <span className="text-2xl font-bold text-indigo-600">KOSKITA</span>
+            <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">KOSKITA</span>
           ) : (
-            <span className="text-2xl font-bold text-indigo-600">K</span>
+            <span className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">K</span>
           )}
           <Button
             variant="ghost"
@@ -68,11 +69,11 @@ export function OwnerLayout({ children }: OwnerLayoutProps) {
                   className={cn(
                     "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200",
                     isActive 
-                      ? "bg-indigo-50 text-indigo-600 font-medium" 
-                      : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"
+                      ? "bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-medium" 
+                      : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200"
                   )}
                 >
-                  <item.icon className={cn("w-5 h-5", isActive && "text-indigo-600")} />
+                  <item.icon className={cn("w-5 h-5", isActive && "text-indigo-600 dark:text-indigo-400")} />
                   {isSidebarOpen && <span>{item.label}</span>}
                 </div>
               </Link>
@@ -80,11 +81,22 @@ export function OwnerLayout({ children }: OwnerLayoutProps) {
           })}
         </nav>
 
-        <div className="p-4 border-t border-slate-100">
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+          {isSidebarOpen && (
+            <div className="flex items-center justify-between px-2 mb-2">
+              <span className="text-sm text-slate-500 dark:text-slate-400">Tema</span>
+              <ModeToggle />
+            </div>
+          )}
+          {!isSidebarOpen && (
+            <div className="flex justify-center mb-2">
+              <ModeToggle />
+            </div>
+          )}
           <Button
             variant="ghost"
             className={cn(
-              "w-full flex items-center gap-3 text-red-500 hover:text-red-600 hover:bg-red-50",
+              "w-full flex items-center gap-3 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30",
               !isSidebarOpen && "justify-center px-0"
             )}
             onClick={() => signOut({ callbackUrl: '/login' })}
@@ -96,9 +108,10 @@ export function OwnerLayout({ children }: OwnerLayoutProps) {
       </motion.aside>
 
       {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 w-full bg-white border-b border-slate-200 z-20 px-4 py-3 flex items-center justify-between">
-        <span className="text-xl font-bold text-indigo-600">KOSKITA</span>
+      <div className="md:hidden fixed top-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 z-20 px-4 py-3 flex items-center justify-between">
+        <span className="text-xl font-bold text-indigo-600 dark:text-indigo-400">KOSKITA</span>
         <div className="flex items-center gap-2">
+          <ModeToggle />
           <NotificationBell />
           <Button variant="ghost" size="icon">
             <Menu className="w-6 h-6" />
